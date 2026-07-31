@@ -91,6 +91,7 @@ import { AstroFont } from 'astro-font';
       .hero__image-wrapper { clip-path: inset(0 0 0 0) !important; }
       .hero__copper-line { scale: 1 1 !important; }
       .hero__content > *:not(.hero__rings) { opacity: 1 !important; transform: none !important; }
+      .reveal, .reveal--left, .reveal--right, .reveal--scale, .schedule-row { opacity: 1 !important; transform: none !important; scale: 1 !important; }
     </style>
   </noscript>
 
@@ -364,72 +365,35 @@ import { AstroFont } from 'astro-font';
     gsap.ticker.add((time) => { lenis.raf(time * 1000); });
     gsap.ticker.lagSmoothing(0);
 
-    // ── Scroll reveal — GSAP ScrollTrigger.batch ──
-    // Anti-blank: il CSS non nasconde nulla. Il JS nasconde
-    // SOLO gli elementi fuori viewport al load, poi GSAP
-    // li rivela via ScrollTrigger.batch (pattern collaudato).
-    // Se tutto fallisce → safety net rimuove le classi dopo 5s.
+    // ── Scroll reveal — GSAP ScrollTrigger scrub ──
+    // CSS nasconde gli elementi (opacity:0, translate). GSAP to()
+    // li rivela progressivamente via ScrollTrigger scrub (legato
+    // allo scroll, come animation-timeline originale ma affidabile).
+    // Safety net: setTimeout 4s rimuove tutto se GSAP non parte.
     (function () {
-
-      var els = document.querySelectorAll('.reveal, .schedule-row');
+      var els = document.querySelectorAll('.reveal, .reveal--left, .reveal--right, .reveal--scale, .schedule-row');
       if (!els.length) return;
+      if (!window.gsap || !window.ScrollTrigger) return;
 
-      // 1) Aggiungi hidden SOLO agli elementi FUORI viewport (niente flash)
       els.forEach(function (el) {
-        var rect = el.getBoundingClientRect();
-        if (rect.top > window.innerHeight || rect.bottom < 0) {
-          el.classList.add('reveal--hidden');
-        }
+        gsap.to(el, {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          duration: 1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 90%',
+            end: 'top 30%',
+            scrub: 0.6,
+          },
+          overwrite: 'auto',
+        });
       });
 
-      var hidden = document.querySelectorAll('.reveal--hidden');
-      if (!hidden.length) return;
-
-      // 2) Se reduced-motion → mostra subito senza animazione
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        hidden.forEach(function (el) { el.classList.remove('reveal--hidden'); });
-        return;
-      }
-
-      // 3) GSAP + ScrollTrigger.batch — pattern identico a quello dell'hero
-      if (window.gsap && window.ScrollTrigger) {
-        ScrollTrigger.batch(hidden, {
-          start: 'top 92%',
-          once: true,
-          onEnter: function (batch) {
-            gsap.to(batch, {
-              opacity: 1,
-              x: 0,
-              y: 0,
-              scale: 1,
-              duration: 1.2,
-              ease: 'power3.out',
-              overwrite: 'auto',
-            });
-          },
-        });
-        ScrollTrigger.refresh();
-        return;
-      }
-
-      // 4) Fallback: IntersectionObserver + transition CSS
-      if ('IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              entry.target.classList.remove('reveal--hidden');
-              io.unobserve(entry.target);
-            }
-          });
-        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
-        hidden.forEach(function (el) { io.observe(el); });
-        return;
-      }
-
-      // 5) Fallback ultimo: mostra tutto dopo 3s
-      setTimeout(function () {
-        hidden.forEach(function (el) { el.classList.remove('reveal--hidden'); });
-      }, 3000);
+      ScrollTrigger.refresh();
     })();
 
     // Hero image reveal
@@ -506,6 +470,11 @@ import { AstroFont } from 'astro-font';
       });
       document.querySelectorAll('.hero__copper-line').forEach(el => {
         el.style.transform = 'scaleX(1)';
+      });
+      document.querySelectorAll('.reveal, .reveal--left, .reveal--right, .reveal--scale, .schedule-row').forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        el.style.scale = '1';
       });
     }, 4000);
   </script>

@@ -1,50 +1,36 @@
 /* =============================================
-   ANIMATIONS — Reveal via GSAP + IO fallback
+   ANIMATIONS — scroll-linked reveal
    ══════════════════════════════════════════════
-   REGOLA ANTI-BLANK ASSOLUTA:
-   - Il CSS NON nasconde MAI nulla (opacity:1 di default)
-   - Lo stato nascosto (.reveal--hidden) viene applicato
-     SOLO via JS (elementi fuori viewport al load)
-   - GSAP to() rivela con ScrollTrigger (animazione forte)
-   - Se GSAP manca → IntersectionObserver + transition CSS
-   - Se tutto manca → contenuto visibile comunque
+   - CSS imposta stato nascosto (opacity:0)
+   - GSAP ScrollTrigger.scrub rivela progressivamente
+   - <noscript> override → tutto visibile
+   - setTimeout safety-net → tutto visibile dopo 4s
    ============================================= */
 
 @layer components {
-  .reveal,
-  .reveal--left,
-  .reveal--right,
-  .reveal--scale {
-    opacity: 1;
-    transition:
-      opacity 0.9s var(--ease-out),
-      transform 0.9s var(--ease-out),
-      scale 0.9s var(--ease-out);
+  /* ── Reveal — scroll-linked ──────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(50px);
   }
 
-  /* Stato nascosto — applicato SOLO da JS */
-  .reveal--hidden {
+  .reveal--left {
     opacity: 0;
+    transform: translateX(-50px);
   }
-  .reveal--hidden.reveal--left {
-    transform: translateX(-60px);
+
+  .reveal--right {
+    opacity: 0;
+    transform: translateX(50px);
   }
-  .reveal--hidden.reveal--right {
-    transform: translateX(60px);
-  }
-  .reveal--hidden.reveal--scale {
+
+  .reveal--scale {
+    opacity: 0;
     scale: 0.92;
   }
-  .reveal--hidden:not(.reveal--left):not(.reveal--right):not(.reveal--scale) {
-    transform: translateY(60px);
-  }
 
-  /* ── Orari reveal ────────────────────────── */
+  /* ── Schedule rows ────────────────────────── */
   .schedule-row {
-    opacity: 1;
-    transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
-  }
-  .schedule-row.reveal--hidden {
     opacity: 0;
     transform: translateY(16px);
   }
