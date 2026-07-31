@@ -349,6 +349,35 @@ import { AstroFont } from 'astro-font';
   <script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script is:inline>
+    // ── Scroll reveal via IntersectionObserver ──
+    // Anti-blank: le classi hidden vengono applicate SOLO se IO esiste.
+    // Senza IO o senza JS → tutto visibile. Nessun rischio di sezioni blank.
+    (function () {
+      if (!('IntersectionObserver' in window)) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      var els = document.querySelectorAll('.reveal, .schedule-row');
+      if (!els.length) return;
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('reveal--hidden');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+
+      els.forEach(function (el) {
+        // Nascondi solo se FUORI dal viewport — evita flicker su elementi già visibili
+        var rect = el.getBoundingClientRect();
+        if (rect.top > window.innerHeight || rect.bottom < 0) {
+          el.classList.add('reveal--hidden');
+        }
+        io.observe(el);
+      });
+    })();
+
     // ── Lenis smooth scroll ──────────────────
     const lenis = new Lenis({
       duration: 1.2,

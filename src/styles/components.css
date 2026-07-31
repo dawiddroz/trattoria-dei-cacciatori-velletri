@@ -277,28 +277,17 @@
     right: -120px;
     pointer-events: none;
     z-index: 0;
-    opacity: 0;
-    animation: rings-fade linear both;
-    animation-timeline: view();
-    animation-range: entry 5% cover 20%;
+    opacity: 1;
   }
 
   .hero__rings circle { fill: none; }
-  .rings-circle-1 { stroke: var(--sage); stroke-width: 0.5; opacity: 0.15; }
-  .rings-circle-2 { stroke: var(--sage); stroke-width: 0.5; opacity: 0.12; }
-  .rings-circle-3 { stroke: var(--sage); stroke-width: 0.5; opacity: 0.10; }
-  .rings-circle-4 { stroke: var(--sage); stroke-width: 0.6; opacity: 0.08; }
-  .rings-circle-5 { stroke: var(--sage); stroke-width: 0.6; opacity: 0.06; }
-  .rings-circle-6 { stroke: var(--copper); stroke-width: 0.4; opacity: 0.08; }
-  .rings-circle-7 { stroke: var(--sage); stroke-width: 0.5; opacity: 0.05; }
-
-  @keyframes rings-fade {
-    to { opacity: 1; }
-  }
-
-  @supports not (animation-timeline: scroll()) {
-    .hero__rings { opacity: 1; }
-  }
+  .rings-circle-1 { stroke: var(--sage); stroke-width: 1.2; opacity: 0.28; }
+  .rings-circle-2 { stroke: var(--sage); stroke-width: 1.2; opacity: 0.24; }
+  .rings-circle-3 { stroke: var(--sage); stroke-width: 1.2; opacity: 0.20; }
+  .rings-circle-4 { stroke: var(--sage); stroke-width: 1.5; opacity: 0.16; }
+  .rings-circle-5 { stroke: var(--sage); stroke-width: 1.5; opacity: 0.12; }
+  .rings-circle-6 { stroke: var(--copper); stroke-width: 1.2; opacity: 0.16; }
+  .rings-circle-7 { stroke: var(--sage); stroke-width: 1.2; opacity: 0.10; }
   /* ── Hero scroll indicator ──────────────── */
   .hero__scroll-indicator {
     position: absolute;
