@@ -1,12 +1,13 @@
 /* =============================================
-   ANIMATIONS — Reveal via JS IntersectionObserver
+   ANIMATIONS — Reveal via GSAP + IO fallback
    ══════════════════════════════════════════════
    REGOLA ANTI-BLANK ASSOLUTA:
    - Il CSS NON nasconde MAI nulla (opacity:1 di default)
    - Lo stato nascosto (.reveal--hidden) viene applicato
-     SOLO via JS, e solo se IntersectionObserver esiste
-   - Senza JS → tutto visibile. IO rotto → tutto visibile.
-   - Le classi reveal servono solo come hook per il JS.
+     SOLO via JS (elementi fuori viewport al load)
+   - GSAP to() rivela con ScrollTrigger (animazione forte)
+   - Se GSAP manca → IntersectionObserver + transition CSS
+   - Se tutto manca → contenuto visibile comunque
    ============================================= */
 
 @layer components {
@@ -16,36 +17,36 @@
   .reveal--scale {
     opacity: 1;
     transition:
-      opacity 0.8s var(--ease-out),
-      translate 0.8s var(--ease-out),
-      scale 0.8s var(--ease-out);
+      opacity 0.9s var(--ease-out),
+      transform 0.9s var(--ease-out),
+      scale 0.9s var(--ease-out);
   }
 
-  /* Stato nascosto — applicato SOLO da JS via IntersectionObserver */
+  /* Stato nascosto — applicato SOLO da JS */
   .reveal--hidden {
     opacity: 0;
   }
   .reveal--hidden.reveal--left {
-    translate: -40px 0;
+    transform: translateX(-60px);
   }
   .reveal--hidden.reveal--right {
-    translate: 40px 0;
+    transform: translateX(60px);
   }
   .reveal--hidden.reveal--scale {
-    scale: 0.94;
+    scale: 0.92;
   }
   .reveal--hidden:not(.reveal--left):not(.reveal--right):not(.reveal--scale) {
-    translate: 0 40px;
+    transform: translateY(60px);
   }
 
   /* ── Orari reveal ────────────────────────── */
   .schedule-row {
     opacity: 1;
-    transition: opacity 0.6s var(--ease-out), translate 0.6s var(--ease-out);
+    transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
   }
   .schedule-row.reveal--hidden {
     opacity: 0;
-    translate: 0 12px;
+    transform: translateY(16px);
   }
 
   /* ── Hero parallax (GSAP handles this) ──── */

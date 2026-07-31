@@ -349,16 +349,66 @@ import { AstroFont } from 'astro-font';
   <script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script is:inline>
-    // ── Scroll reveal via IntersectionObserver ──
-    // Anti-blank: le classi hidden vengono applicate SOLO se IO esiste.
-    // Senza IO o senza JS → tutto visibile. Nessun rischio di sezioni blank.
+    // ── Lenis smooth scroll ──────────────────
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    // ── GSAP + ScrollTrigger ─────────────────
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Integrazione Lenis ↔ ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+
+    // ── Scroll reveal — GSAP first, IO fallback ──
+    // Anti-blank: il CSS non nasconde nulla. Il JS nasconde
+    // SOLO gli elementi fuori viewport al load, poi GSAP
+    // (o IO) li rivela. Se tutto fallisce → contenuto visibile.
     (function () {
-      if (!('IntersectionObserver' in window)) return;
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
       var els = document.querySelectorAll('.reveal, .schedule-row');
       if (!els.length) return;
 
+      // 1) Nascondi solo gli elementi FUORI dal viewport (niente flash su quelli visibili)
+      var hidden = [];
+      els.forEach(function (el) {
+        var rect = el.getBoundingClientRect();
+        if (rect.top > window.innerHeight || rect.bottom < 0) {
+          el.classList.add('reveal--hidden');
+          hidden.push(el);
+        }
+      });
+      if (!hidden.length) return;
+
+      // 2) GSAP + ScrollTrigger → animazione potente
+      if (window.gsap && window.ScrollTrigger) {
+        hidden.forEach(function (el) {
+          gsap.to(el, {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            duration: 1.1,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 88%',
+            },
+          });
+        });
+        return;
+      }
+
+      // 3) Fallback: IntersectionObserver + transition CSS
+      if (!('IntersectionObserver' in window)) {
+        hidden.forEach(function (el) { el.classList.remove('reveal--hidden'); });
+        return;
+      }
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
@@ -367,32 +417,8 @@ import { AstroFont } from 'astro-font';
           }
         });
       }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
-
-      els.forEach(function (el) {
-        // Nascondi solo se FUORI dal viewport — evita flicker su elementi già visibili
-        var rect = el.getBoundingClientRect();
-        if (rect.top > window.innerHeight || rect.bottom < 0) {
-          el.classList.add('reveal--hidden');
-        }
-        io.observe(el);
-      });
+      hidden.forEach(function (el) { io.observe(el); });
     })();
-
-    // ── Lenis smooth scroll ──────────────────
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
-
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    // ── GSAP + ScrollTrigger ─────────────────
-    gsap.registerPlugin(ScrollTrigger);
 
     // Hero image reveal
     gsap.to('.hero__image-wrapper', {
