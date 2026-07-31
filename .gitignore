@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+.vite/
+bash.exe.stackdump
+_lead-data/
+.hermes-tmp*/
