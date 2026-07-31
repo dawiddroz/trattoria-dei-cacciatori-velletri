@@ -1,0 +1,19 @@
+{
+  "name": "trattoria-dei-cacciatori",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build; cp -r public/__astro_font_generated__ dist/__astro_font_generated__ 2>/dev/null; exit 0",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^7.1.6",
+    "astro-font": "^1.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

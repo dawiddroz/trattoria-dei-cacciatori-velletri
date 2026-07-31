@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Story from '../components/Story.astro';
+import Menu from '../components/Menu.astro';
+import Reviews from '../components/Reviews.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base>
+  <Nav />
+  <main>
+    <Hero />
+
+    <!-- Sentiero divider -->
+    <div class="section-divider reveal" aria-hidden="true">
+      <svg viewBox="0 0 600 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="divider-path-1" d="M0 16 Q75 0 150 16 T300 16 T450 16 T600 16" />
+        <path class="divider-path-2" d="M0 20 Q75 4 150 20 T300 20 T450 20 T600 20" />
+      </svg>
+    </div>
+
+    <Story />
+
+    <!-- Sentiero divider -->
+    <div class="section-divider reveal" aria-hidden="true">
+      <svg viewBox="0 0 600 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="divider-path-1" d="M0 16 Q75 0 150 16 T300 16 T450 16 T600 16" />
+        <path class="divider-path-2" d="M0 20 Q75 4 150 20 T300 20 T450 20 T600 20" />
+      </svg>
+    </div>
+
+    <Menu />
+
+    <!-- Sentiero divider -->
+    <div class="section-divider reveal" aria-hidden="true">
+      <svg viewBox="0 0 600 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="divider-path-1" d="M0 16 Q75 0 150 16 T300 16 T450 16 T600 16" />
+        <path class="divider-path-2" d="M0 20 Q75 4 150 20 T300 20 T450 20 T600 20" />
+      </svg>
+    </div>
+
+    <Reviews />
+
+    <!-- Sentiero divider -->
+    <div class="section-divider reveal" aria-hidden="true">
+      <svg viewBox="0 0 600 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="divider-path-1" d="M0 16 Q75 0 150 16 T300 16 T450 16 T600 16" />
+        <path class="divider-path-2" d="M0 20 Q75 4 150 20 T300 20 T450 20 T600 20" />
+      </svg>
+    </div>
+
+    <Contact />
+  </main>
+  <Footer />
+</Base>

@@ -1,0 +1,5 @@
+/* ═══════════════════════════════════════════════════
+   @LAYER CASCADE — Order of authority
+   ═══════════════════════════════════════════════════ */
+
+@layer reset, tokens, base, components, utilities;

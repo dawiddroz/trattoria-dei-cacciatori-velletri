@@ -1,0 +1,446 @@
+---
+import { AstroFont } from 'astro-font';
+---
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Trattoria Dei Cacciatori — Tradizione, cacciagione e genuinità dal 1970 sulla Via dei Laghi a Velletri. Pasta fatta a mano, funghi porcini, pizza a legna." />
+  <meta name="keywords" content="trattoria, cacciatori, velletri, ristorante, cacciagione, funghi porcini, pasta fatta a mano, pizza, via dei laghi" />
+  <meta name="author" content="Trattoria Dei Cacciatori" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Trattoria Dei Cacciatori — Tradizione dal 1970" />
+  <meta property="og:description" content="Cacciagione, funghi porcini e pasta fatta a mano sulla Via dei Laghi a Velletri." />
+  <meta property="og:type" content="restaurant" />
+  <meta property="og:locale" content="it_IT" />
+
+  <!-- Astro Fonts — self-hosted, zero CLS -->
+  <AstroFont
+    config={[
+      {
+        name: "Fraunces",
+        src: [],
+        googleFontsURL: "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,350&display=swap",
+        preload: true,
+        display: "swap",
+        selector: ":root",
+        fallback: "serif",
+        fetch: true,
+      },
+      {
+        name: "Sora",
+        src: [],
+        googleFontsURL: "https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap",
+        preload: true,
+        display: "swap",
+        selector: ":root",
+        fallback: "sans-serif",
+        fetch: true,
+      },
+      {
+        name: "JetBrains Mono",
+        src: [],
+        googleFontsURL: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap",
+        preload: true,
+        display: "swap",
+        selector: ":root",
+        fallback: "monospace",
+        fetch: true,
+      },
+    ]}
+  />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <title>Trattoria Dei Cacciatori — Velletri</title>
+
+  <!-- CSS Layers -->
+  <style is:global>
+    @import "../styles/layers.css";
+    @import "../styles/reset.css" layer(reset);
+    @import "../styles/tokens.css" layer(tokens);
+    @import "../styles/components.css" layer(components);
+    @import "../styles/animations.css" layer(components);
+  </style>
+
+  <style is:global>
+    /* Anti-flash: hide elements that JS will animate */
+    .hero__image-wrapper {
+      clip-path: inset(0 0 0 100%);
+    }
+    .hero__copper-line {
+      scale: 0 1;
+    }
+
+    .hero__content > *:not(.hero__rings) {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    /* Noscript fallback — show everything if JS disabled */
+    noscript {
+      display: block;
+    }
+  </style>
+  <noscript>
+    <style>
+      .hero__image-wrapper { clip-path: inset(0 0 0 0) !important; }
+      .hero__copper-line { scale: 1 1 !important; }
+      .hero__content > *:not(.hero__rings) { opacity: 1 !important; transform: none !important; }
+    </style>
+  </noscript>
+
+  <!-- ===== DECORATIVE SVG STYLES — INLINE to bypass @import issues ===== -->
+  <style is:global>
+    /* ── Noise texture overlay ─────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.30;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+      mix-blend-mode: multiply;
+    }
+
+    /* ── Hero tree rings ───────────────────── */
+    .hero__rings {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      top: -80px;
+      right: -120px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 1;
+    }
+    .hero__rings circle { fill: none; }
+    .rings-circle-1 { stroke: #7A9B7A; stroke-width: 1.2; opacity: 0.28; }
+    .rings-circle-2 { stroke: #7A9B7A; stroke-width: 1.2; opacity: 0.24; }
+    .rings-circle-3 { stroke: #7A9B7A; stroke-width: 1.2; opacity: 0.20; }
+    .rings-circle-4 { stroke: #7A9B7A; stroke-width: 1.5; opacity: 0.16; }
+    .rings-circle-5 { stroke: #7A9B7A; stroke-width: 1.5; opacity: 0.12; }
+    .rings-circle-6 { stroke: #CD7A5C; stroke-width: 1.2; opacity: 0.16; }
+    .rings-circle-7 { stroke: #7A9B7A; stroke-width: 1.2; opacity: 0.10; }
+
+    /* ── Section divider "Sentiero" ────────── */
+    .section-divider {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: var(--space-lg) 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .section-divider svg {
+      width: 100%;
+      max-width: 600px;
+      height: 32px;
+    }
+    .divider-path-1 {
+      stroke: #7A9B7A;
+      stroke-width: 0.8;
+      opacity: 0.4;
+      fill: none;
+    }
+    .divider-path-2 {
+      stroke: #CD7A5C;
+      stroke-width: 0.4;
+      opacity: 0.25;
+      fill: none;
+    }
+
+    /* ── Pine branch decorations ───────────── */
+    .pine-branch {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0.25;
+      z-index: 0;
+    }
+    .pine-branch--right {
+      right: -10px;
+      bottom: 20px;
+      width: 160px;
+      transform: rotate(15deg);
+    }
+    .pine-branch--left {
+      left: -10px;
+      top: 20px;
+      width: 140px;
+      transform: rotate(-25deg) scaleX(-1);
+    }
+    .pine-branch__stem {
+      stroke: #1A3C34;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+    }
+    .pine-branch__needle {
+      stroke: #1A3C34;
+      stroke-width: 1.2;
+      stroke-linecap: round;
+    }
+
+    /* ── Footer decorative double line ─────── */
+    .footer__decor {
+      width: 100%;
+      height: 3px;
+      margin-bottom: var(--space-lg);
+      background:
+        linear-gradient(to right, #2D5A3D 60%, transparent 60%) no-repeat top / 100% 2px,
+        linear-gradient(to right, #CD7A5C 30%, transparent 30%) no-repeat bottom / 100% 1px;
+    }
+
+    /* ── Footer redesign ───────────────────── */
+    .footer {
+      padding: var(--space-4xl) var(--space-xl) var(--space-2xl);
+      background: var(--charcoal);
+      color: var(--birch);
+    }
+    .footer__inner {
+      max-width: var(--content-max);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2xl);
+    }
+    .footer__brand-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .footer__brand {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: var(--birch);
+      letter-spacing: -0.01em;
+    }
+    .footer__tagline {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--mushroom);
+      letter-spacing: 0.04em;
+    }
+    .footer__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: var(--space-xl);
+    }
+    .footer__nav {
+      display: flex;
+      gap: var(--space-lg);
+      flex-wrap: wrap;
+    }
+    .footer__nav a {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--mushroom);
+      transition: color var(--dur-fast);
+    }
+    .footer__nav a:hover { color: var(--copper); }
+    .footer__bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      padding-top: var(--space-lg);
+      border-top: 1px solid rgba(212, 201, 192, 0.12);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--mushroom);
+    }
+    .footer__address {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .footer__address svg { flex-shrink: 0; }
+    .footer__info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .footer__tel { color: var(--copper-glow); transition: color var(--dur-fast); }
+    .footer__tel:hover { color: var(--copper); }
+    .footer__sep { opacity: 0.3; }
+    .footer__wa { color: var(--sage); transition: color var(--dur-fast); }
+    .footer__wa:hover { color: var(--birch); }
+    .footer__credits { opacity: 0.45; }
+
+    @media (max-width: 600px) {
+      .footer__bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json" is:inline>
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Trattoria Dei Cacciatori",
+      "description": "Tradizione, cacciagione e genuinità dal 1970. Pasta fatta a mano, funghi porcini e pizza a legna sulla Via dei Laghi a Velletri.",
+      "url": "https://trattoriadeicacciatori.it",
+      "telephone": "+390639630945",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Via dei Laghi, 187",
+        "addressLocality": "Velletri",
+        "addressRegion": "RM",
+        "postalCode": "00049",
+        "addressCountry": "IT"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 41.7011544,
+        "longitude": 12.7619578
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.3",
+        "reviewCount": "834"
+      },
+      "priceRange": "\u20ac20-30",
+      "servesCuisine": "Italian",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Wednesday", "Thursday"],
+          "opens": "19:30",
+          "closes": "00:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Friday", "Saturday", "Sunday"],
+          "opens": "12:30",
+          "closes": "15:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Friday", "Saturday", "Sunday"],
+          "opens": "19:30",
+          "closes": "00:00"
+        }
+      ]
+    }
+  </script>
+</head>
+<body>
+  <slot />
+
+  <!-- GSAP + ScrollTrigger (CDN) -->
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Lenis smooth scroll -->
+  <script is:inline src="https://cdn.jsdelivr.net/npm/lenis@1.3.13/dist/lenis.min.js"></script>
+  <!-- Leaflet -->
+  <script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script is:inline>
+    // ── Lenis smooth scroll ──────────────────
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // ── GSAP + ScrollTrigger ─────────────────
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero image reveal
+    gsap.to('.hero__image-wrapper', {
+      clipPath: 'inset(0 0 0 0%)',
+      duration: 1.2,
+      ease: 'power3.inOut',
+      delay: 0.3,
+    });
+
+    // Copper line stretch
+    gsap.to('.hero__copper-line', {
+      scaleX: 1,
+      duration: 1,
+      ease: 'power3.out',
+      delay: 0.6,
+    });
+
+    // Hero content stagger — CSS hides, GSAP reveals
+    gsap.to('.hero__content > *:not(.hero__rings)', {
+      y: 0,
+      opacity: 1,
+      duration: 0.7,
+      stagger: 0.1,
+      ease: 'power2.out',
+      delay: 0.8,
+    });
+
+    // Nav scroll effect
+    const nav = document.querySelector('.nav');
+    ScrollTrigger.create({
+      trigger: document.body,
+      start: 'top -60',
+      onEnter: () => nav.classList.add('nav--scrolled'),
+      onLeaveBack: () => nav.classList.remove('nav--scrolled'),
+    });
+
+    // ── Burger menu toggle ───────────────────
+    const burger = document.querySelector('.nav__burger');
+    const navLinks = document.querySelector('.nav__links');
+    if (burger && navLinks) {
+      burger.addEventListener('click', () => {
+        burger.classList.toggle('open');
+        navLinks.classList.toggle('open');
+      });
+
+      // Close menu on link click
+      navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          burger.classList.remove('open');
+          navLinks.classList.remove('open');
+        });
+      });
+    }
+
+    // ── Leaflet map ──────────────────────────
+    const mapEl = document.getElementById('map');
+    if (mapEl) {
+      const map = L.map('map').setView([41.7011544, 12.7619578], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '\u00a9 OpenStreetMap',
+        maxZoom: 19,
+      }).addTo(map);
+      L.marker([41.7011544, 12.7619578])
+        .addTo(map)
+        .bindPopup('<strong>Trattoria Dei Cacciatori</strong><br>Via dei Laghi, 187')
+        .openPopup();
+    }
+
+    // Safety net: reveal hidden elements after timeout if GSAP/JS fails
+    setTimeout(() => {
+      document.querySelectorAll('.hero__image-wrapper').forEach(el => {
+        el.style.clipPath = 'inset(0 0 0 0%)';
+      });
+      document.querySelectorAll('.hero__copper-line').forEach(el => {
+        el.style.transform = 'scaleX(1)';
+      });
+    }, 4000);
+  </script>
+</body>
+</html>
